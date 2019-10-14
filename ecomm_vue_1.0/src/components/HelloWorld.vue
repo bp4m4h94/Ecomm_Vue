@@ -14,7 +14,7 @@ export default {
   },
   methods: {
     logout(){
-       const api = `${process.env.APIPATH}/logout`
+      const api = `${process.env.APIPATH}/logout`
       var vm = this;
       this.$http.post(api, vm.user).then((response) => {
         console.log(response.data);
