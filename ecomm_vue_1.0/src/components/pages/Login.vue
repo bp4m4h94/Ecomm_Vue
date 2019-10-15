@@ -36,7 +36,7 @@ export default {
         console.log(vm.user);
         console.log(response.data);
         if(response.data.success){
-          vm.$router.push('/');
+          vm.$router.push('/admin/products');
         }
     });
     }
