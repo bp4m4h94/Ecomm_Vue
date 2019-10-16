@@ -59,10 +59,10 @@
               <label for="customFile">或 上傳圖片
                 <i class="fas fa-spinner fa-spin"></i>
               </label>
-              <input type="file" id="customFile" class="form-control"
-                ref="files">
+              <input type="file" name="file-to-upload" id="customFile" class="form-control"
+                ref="files" @change="uploadFile">
             </div>
-            <img img="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=828346ed697837ce808cae68d3ddc3cf&auto=format&fit=crop&w=1350&q=80"
+            <img :src="tempProduct.imageUrl"
               class="img-fluid" alt="">
           </div>
           <div class="col-sm-8">
@@ -147,8 +147,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-danger"
-          >確認刪除</button>
+        <button type="button" class="btn btn-danger">
+            確認刪除
+        </button>
       </div>
     </div>
   </div>
@@ -183,6 +184,7 @@ export default {
               vm.isNew = true;
             }//修改
             else{
+                console.log(item);
               vm.tempProduct = Object.assign({}, item);
               vm.isNew = false;
             }
@@ -207,6 +209,27 @@ export default {
                     $('#productModal').modal('hide');
                     this.getProducts();
                     console.log('新增失敗');
+                }
+            });
+        },
+        uploadFile(){
+            const uploadedFile = this.$refs.files.files[0];
+            console.log(uploadedFile);
+            const vm = this;
+            var formData = new FormData();
+            formData.append('file-to-upload', uploadedFile);
+            const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/upload`
+            this.$http.post(url, formData,{
+                headers: {
+                    'Content-Type' : 'multipart/form-data' 
+                }
+            }).then((response) => {
+                console.log(response.data);
+                if(response.data.success){
+                // vm.tempProduct.imageUrl = response.data.imageUrl
+                //雙向綁定
+                vm.$set(vm.tempProduct,'imageUrl',response.data.imageUrl);
+                console.log(vm.tempProduct);
                 }
             });
         }
