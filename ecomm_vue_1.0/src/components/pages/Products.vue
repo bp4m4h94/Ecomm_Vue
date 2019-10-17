@@ -1,5 +1,6 @@
 <template>
     <div>
+        <loading :active.sync="isLoading"></loading>
         <div class="text-right mt-4">
             <button class="btn btn-primary" @click="openModal(true)">建立新產品</button>
         </div>
@@ -57,7 +58,7 @@
             </div>
             <div class="form-group">
               <label for="customFile">或 上傳圖片
-                <i class="fas fa-spinner fa-spin"></i>
+                <i class="fas fa-spinner fa-spin" v-if="status.uploading"></i>
               </label>
               <input type="file" name="file-to-upload" id="customFile" class="form-control"
                 ref="files" @change="uploadFile">
@@ -164,16 +165,22 @@ export default {
         return {
             products: [],
             tempProduct: {},
-            isNew: false
+            isNew: false,
+            isLoading: false,
+            status: {
+                uploading: false
+            }
         }
     },
     methods: {
         getProducts(){
             const vm = this;
+            vm.isLoading = true;
             const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/products`
             this.$http.get(api).then((response) => {
                 // console.log(response.data);
                 vm.products = response.data.products;
+                vm.isLoading = false;
             })
         },
         openModal(isNew, item){
@@ -201,7 +208,7 @@ export default {
                 httpMethod = 'put';
             }
             this.$http[httpMethod](api, {"data":vm.tempProduct}).then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 if(response.data.success){
                    $('#productModal').modal('hide');
                     this.getProducts();
@@ -214,7 +221,7 @@ export default {
         },
         uploadFile(){
             const uploadedFile = this.$refs.files.files[0];
-            console.log(uploadedFile);
+            //console.log(uploadedFile);
             const vm = this;
             var formData = new FormData();
             formData.append('file-to-upload', uploadedFile);
@@ -224,12 +231,14 @@ export default {
                     'Content-Type' : 'multipart/form-data' 
                 }
             }).then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 if(response.data.success){
-                // vm.tempProduct.imageUrl = response.data.imageUrl
-                //雙向綁定
-                vm.$set(vm.tempProduct,'imageUrl',response.data.imageUrl);
-                console.log(vm.tempProduct);
+                    vm.status.uploading = true;
+                    // vm.tempProduct.imageUrl = response.data.imageUrl
+                    //雙向綁定
+                    vm.$set(vm.tempProduct,'imageUrl',response.data.imageUrl);
+                    vm.status.uploading = false;
+                    //console.log(vm.tempProduct);
                 }
             });
         }
