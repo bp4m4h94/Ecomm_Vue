@@ -20,10 +20,10 @@
                     <td>{{ item.category }}</td>
                     <td>{{ item.title }}</td>
                     <td class="text-right">
-                        {{ item.origin_price }}
+                        {{ item.origin_price | currency }}
                     </td>
                     <td class="text-right">
-                        {{ item.price }}
+                        {{ item.price | currency }}
                     </td>
                     <td>
                         <span v-if="item.is_enabled" class="text-success">啟用</span>
@@ -89,7 +89,7 @@
             <div class="form-row">
               <div class="form-group col-md-6">
               <label for="origin_price">原價</label>
-                <input type="number" class="form-control" id="origin_price"
+                <input type="number" class="form-control" @input="formatPrice(tempProduct.origin_price)" id="origin_price"
                   placeholder="請輸入原價" v-model="tempProduct.origin_price">
               </div>
               <div class="form-group col-md-6">
@@ -231,17 +231,19 @@ export default {
                     'Content-Type' : 'multipart/form-data' 
                 }
             }).then((response) => {
-                //console.log(response.data);
+                console.log(response.data);
                 if(response.data.success){
                     vm.status.uploading = true;
                     // vm.tempProduct.imageUrl = response.data.imageUrl
                     //雙向綁定
                     vm.$set(vm.tempProduct,'imageUrl',response.data.imageUrl);
                     vm.status.uploading = false;
-                    //console.log(vm.tempProduct);
+                    console.log(vm.tempProduct);
+                }else{
+                    vm.$bus.$emit('message:push', response.data.message, 'danger');
                 }
             });
-        }
+        },
     },
     created() {
         this.getProducts();
