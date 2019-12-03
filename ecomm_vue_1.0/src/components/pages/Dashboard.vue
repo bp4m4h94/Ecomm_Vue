@@ -25,7 +25,6 @@ export default {
         Sidebar,
         Alert
     }  
-    
 }
 </script>
 

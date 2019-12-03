@@ -53,7 +53,7 @@
           <div class="col-sm-4">
             <div class="form-group">
               <label for="image">輸入圖片網址</label>
-              <input type="text" class="form-control" id="image"
+              <input type="text" class="form-control" id="image" v-model="tempProduct.imageUrl"
                 placeholder="請輸入圖片連結">
             </div>
             <div class="form-group">
@@ -89,7 +89,7 @@
             <div class="form-row">
               <div class="form-group col-md-6">
               <label for="origin_price">原價</label>
-                <input type="number" class="form-control" @input="formatPrice(tempProduct.origin_price)" id="origin_price"
+                <input type="number" class="form-control" id="origin_price"
                   placeholder="請輸入原價" v-model="tempProduct.origin_price">
               </div>
               <div class="form-group col-md-6">
@@ -155,13 +155,20 @@
     </div>
   </div>
 </div>
+<!-- 分頁 Pagination -->
+<Pagination @changeFatherPage="getProducts"></Pagination>
     </div>
 </template>
 
 <script>
 import $ from 'jquery';
+import Pagination from '../Pagination';
+
 export default {
-    data() {
+  components: {
+    Pagination
+  },
+  data() {
         return {
             products: [],
             tempProduct: {},
@@ -169,18 +176,22 @@ export default {
             isLoading: false,
             status: {
                 uploading: false
-            }
+            },
+            pagination: {}
         }
     },
     methods: {
-        getProducts(){
+        getProducts(page = 1){//ES6參數預設值
             const vm = this;
             vm.isLoading = true;
-            const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/products`
+            const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/products?page=${page}`
             this.$http.get(api).then((response) => {
                 // console.log(response.data);
                 vm.products = response.data.products;
                 vm.isLoading = false;
+                //分頁
+                vm.pagination = response.data.pagination;
+                console.log(response.data);
             })
         },
         openModal(isNew, item){
@@ -234,11 +245,12 @@ export default {
                 console.log(response.data);
                 if(response.data.success){
                     vm.status.uploading = true;
-                    // vm.tempProduct.imageUrl = response.data.imageUrl
+                    // vm.tempProduct.imageUrl = response.data.imageUrl 無效
+                    //原因:https://cn.vuejs.org/v2/guide/reactivity.html  (響應式 v.s. 非響應式)
                     //雙向綁定
                     vm.$set(vm.tempProduct,'imageUrl',response.data.imageUrl);
                     vm.status.uploading = false;
-                    console.log(vm.tempProduct);
+                    // console.log(vm.tempProduct);
                 }else{
                     vm.$bus.$emit('message:push', response.data.message, 'danger');
                 }
