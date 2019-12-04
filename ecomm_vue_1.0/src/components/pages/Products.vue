@@ -156,7 +156,7 @@
   </div>
 </div>
 <!-- 分頁 Pagination -->
-<Pagination @changeFatherPage="getProducts"></Pagination>
+<tag-page :page-data="pagination" @changeFatherPage="getProducts"></tag-page>
     </div>
 </template>
 
@@ -166,7 +166,7 @@ import Pagination from '../Pagination';
 
 export default {
   components: {
-    Pagination
+   tagPage: Pagination
   },
   data() {
         return {
